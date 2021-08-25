@@ -4,15 +4,24 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 )
 
+func checkIP(ip string) {
+}
+
 func home(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, `
+	ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+	if ip != "127.0.0.1" {
+		w.WriteHeader(http.StatusForbidden)
+		w.Write([]byte("403 Forbidden"))
+	} else {
+		fmt.Fprintf(w, `
 Hello! This is a local server and so we know it is safe to host
-confidential stuff here. In /secrets you can find the SSH keys for 
-our jump box. Have Fun!
-`)
+confidential stuff here. In /secrets you can find the SSH keys for
+this server.`)
+	}
 }
 
 func secrets(w http.ResponseWriter, r *http.Request) {
